@@ -112,7 +112,51 @@ Every Mode A report must contain, developed in paragraphs:
 
 A complete research report as a Markdown file: `TICKER_report.md`, ~3,500–5,000 words.
 
-## Style checklist (run before handing off to step 10)
+## Adversarial Review Gate
+
+The write-report review is the most thorough — this IS the deliverable.
+
+### Review criteria
+- [ ] **Voice — zero tolerance:** grep for "you"/"你" outside quoted market views.
+  Any second-person address in body → REVISE (fix before proceeding).
+- [ ] **Voice — no AI tells:** grep for emoji, "Here's…", "校准命题", "I'll back you up",
+  bullet-fragment dumps. Any → REVISE.
+- [ ] **Led with stance:** Rating + value/target + current price + thesis in header.
+  Missing any → REVISE.
+- [ ] **Depth — all 6 Damodaran elements present:** (1) industry quant history,
+  (2) company 10yr trajectory + drawdowns, (3) segment TAM×share build,
+  (4) competitive landscape with named players, (5) accounting adjustments
+  with numbers, (6) historical valuation context. Missing any → REVISE.
+- [ ] **Prose-dominant:** Body is paragraphs, not bullet lists. Exhibits are few
+  and purposeful. Wall of bullets → REVISE.
+- [ ] **Numbers woven in:** Numbers live in sentences, not isolated in tables.
+  "Revenue compounded to $2.4bn by 2005" not a lone cell.
+- [ ] **Numbers ledger appended:** Load-bearing figures → source → as-of date table
+  at end of report. Missing → REVISE.
+- [ ] **MoS buy-band stated:** Accumulate-below / fair / rich-above in conclusion.
+  Missing → REVISE.
+- [ ] **Self-falsification:** Specific assumption that carries the result + breakeven
+  at which thesis flips, woven into conclusion. Missing → REVISE.
+- [ ] **Disclaimer + stamps:** One-line not-advice disclaimer + valid-as-of /
+  revisit-by stamps. Missing → REVISE.
+- [ ] **Length:** ~3,500–5,000 words. <2,000 → REVISE (too thin). >7,000 → note
+  (may need trimming).
+
+### Common failure modes
+- Second-person "you" in body (most common — grep and fix)
+- Bullet dumps instead of paragraphs
+- Missing drawdowns (copy-paste gap from company analysis)
+- No MoS buy-band (extract from valuation results)
+- No numbers ledger (compile from source annotations)
+- Report reads like an AI answer to a user, not a published research document
+
+### Verdict thresholds
+- **PASS:** All criteria met; reads like a research report for investors.
+- **REVISE:** Voice violations, missing depth elements, or thin prose.
+- **BLOCK:** Fabricated numbers, completely wrong register, or structurally
+  broken (missing multiple required sections).
+
+### Style checklist (run before submitting to review)
 - [ ] grep for "you"/"你" → only inside quoted market views
 - [ ] grep for emoji → none
 - [ ] Leads with rating + value + price + thesis
@@ -122,8 +166,3 @@ A complete research report as a Markdown file: `TICKER_report.md`, ~3,500–5,00
 - [ ] MoS buy-band stated
 - [ ] Disclaimer present with data dates
 - [ ] valid-as-of / revisit-by stamped
-
-## Integration with the loop
-- If `/self-audit` finds voice/register issues → route back here with specific fixes
-- The report is the input to `/generate-pdf` (step 11)
-- Reference `templates/report.example.md` as the gold-standard shape

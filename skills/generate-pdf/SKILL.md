@@ -179,7 +179,37 @@ body {
   Markdown or chart assets and re-render — no need to loop back to earlier steps
 - The PDF is the final deliverable alongside the Markdown report
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **All charts embedded:** Each chart from `figs/` appears at the correct position
+  in the PDF. Missing or misplaced chart → REVISE.
+- [ ] **CJK rendering:** Chinese characters render correctly (no tofu boxes / 乱码).
+  Any rendering failure → REVISE (fix font config).
+- [ ] **Rating box prominent:** First page has a clearly visible rating box with
+  ticker, rating, value, price, thesis. Missing or buried → REVISE.
+- [ ] **Pages numbered:** Page X of Y in footer. Missing → REVISE.
+- [ ] **Disclaimer visible:** One-line not-advice disclaimer on last page.
+  Missing → REVISE.
+- [ ] **B&W printable:** Charts and text are distinguishable when printed grayscale.
+  Color-only information → REVISE.
+- [ ] **File size:** <10MB. Larger → optimize images before passing.
+- [ ] **No layout overflow:** No text clipping, tables don't exceed page width,
+  charts don't spill off page.
+
+### Common failure modes
+- CJK fonts not rendering (most common on Windows/CI)
+- Charts missing or at wrong positions
+- Rating box not prominent or on wrong page
+- Table column overflow in PDF
+- File too large (high-res charts not optimized)
+
+### Verdict thresholds
+- **PASS:** All criteria met; PDF is distribution-ready.
+- **REVISE:** Rendering issues, missing elements, font problems.
+- **BLOCK:** PDF generation fails entirely, or output is corrupt.
+
+### Self-check (run before submitting to review)
 - [ ] All charts embedded at correct positions
 - [ ] Chinese characters render correctly
 - [ ] Rating box on first page is prominent

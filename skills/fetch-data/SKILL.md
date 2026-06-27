@@ -95,7 +95,34 @@ Every number tagged:
 - Not a substitute for reading actual filings
 - For refreshes (Mode C): used to check if reported financials have changed
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **Source annotations:** Every data field has `_source`, `_tier`, `_date`.
+  Missing annotation → REVISE.
+- [ ] **Recency:** Data is from the most recent available filing/quarter. Data
+  older than 2 years on key metrics → REVISE (flag as potentially stale).
+- [ ] **Confidence tier accuracy:** `audited` tier only for data from actual filings.
+  yfinance data tagged as `audited` → REVISE (it's `third-party-aggregator`).
+- [ ] **Financials metrics correct:** If Financials archetype, the right metrics
+  are collected (book value, ROE, NIM, etc.) — NOT standard P&L. Wrong metrics → REVISE.
+- [ ] **Warnings present:** The output skeleton clearly warns "THIRD-PARTY DATA —
+  CONFIRM BEFORE USE." Missing warning → REVISE.
+- [ ] **JSON validity:** Output is valid JSON.
+
+### Common failure modes
+- yfinance data tagged as `audited` (it's aggregator-tier)
+- Segment data missing (not in yfinance — must be manual)
+- Financials skeleton using standard metrics instead of bank/insurance metrics
+- Stale data (last fiscal year not yet filed in yfinance)
+- Source annotation format inconsistent
+
+### Verdict thresholds
+- **PASS:** Data sourced and tiered, recent, warnings present, JSON valid.
+- **REVISE:** Missing annotations, wrong tier tags, stale data, wrong metrics.
+- **BLOCK:** Fabricated data, completely wrong company, or no data retrieved.
+
+### Self-check (run before submitting to review)
 - [ ] All data fields have source + tier + date annotations
 - [ ] Third-party warnings are visible in the output
 - [ ] For financials: correct metrics collected (not standard P&L items)

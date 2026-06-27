@@ -2,18 +2,29 @@
 name: equity-research-analyst
 description: >
   Fundamental equity valuation & research in Aswath Damodaran's "story -> numbers
-  -> value" style, for ANY company. ORCHESTRATOR: routes to Mode A (produce
-  valuation), B (critique), or C (refresh), then sequences sub-skills through a
-  self-iterating pipeline with quality gates. 用中文也可触发。
+  -> value" style, for ANY company. ORCHESTRATOR: routes to Mode A/B/C, spawns
+  parallel agent teams for concurrent sub-skills, and runs adversarial review
+  agents after every step (1–2 revision rounds). 用中文也可触发。
 license: MIT
 ---
 
 # Equity Research Analyst — Orchestrator
 
 This is the **orchestrator** for the equity-research-analyst skill family. It does
-NOT perform analysis directly — it routes to the correct mode, sequences sub-skills,
-runs quality gates, and manages the **self-iterating loop**: when a later step finds
-issues, it feeds back to the relevant earlier step for revision.
+TWO things that make the pipeline rigorous:
+
+1. **Agent Team — default parallelism.** Where sub-skills are independent, the
+   orchestrator spawns parallel agents (not sequential). Industry + Theme analysis
+   run simultaneously. Durability + Triangulation run simultaneously after the
+   engine. No manual "run these in parallel" instruction needed — it's the default.
+
+2. **Adversarial Review — per-step gate.** After EVERY sub-skill completes, an
+   adversarial review agent critiques the output. The reviewer's job is to find
+   flaws and demand fixes. Each sub-skill gets 1–2 revision rounds. Only when the
+   reviewer signs PASS does the output proceed to the next step.
+
+Together these create a **self-iterating pipeline** where quality is enforced at
+every boundary, not just at the final gate.
 
 ## Architecture
 
@@ -35,89 +46,268 @@ issues, it feeds back to the relevant earlier step for revision.
 └── /fetch-data                   ← shared: fetch financials, build skeleton
 ```
 
-## Shared resources (all sub-skills reference these)
+## Shared resources
 - `scripts/` — Python valuation engine (10 programs)
 - `references/` — Methodology, playbooks, style guides (14 docs)
 - `templates/` — Assumption sheets, worked examples, report templates
 
 ---
 
-## Mode routing (first decision)
+## Two Core Mechanisms
 
-When invoked, determine the mode from the user's request:
+### Mechanism 1 — Agent Team (Default Parallelism)
 
-| Trigger | Mode | Pipeline |
-|---------|------|----------|
-| "value X", "DCF for Y", "write a report on Z", "is X overvalued?", "给X估值" | **Mode A** | Full valuation pipeline (steps 1–10 → PDF) |
-| "audit this report", "critique this note", "审阅这份研报" | **Mode B** | Critique pipeline |
-| "update the X valuation", "refresh my Y report", "最新情况" | **Mode C** | Refresh pipeline |
+The orchestrator **automatically** spawns parallel agents for independent work.
+You do NOT need to ask for concurrency — it's the default behavior.
+
+**Mode A agent team deployment:**
+
+```
+WAVE 1 ─── spawn 2 agents in PARALLEL ─────────────────────────────┐
+│  Agent A: /analyze-industry  (industry lifecycle, leader rotation)│
+│  Agent B: /analyze-theme     (TAM × share, competitive map)      │
+│  → each followed by its adversarial reviewer                     │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓ (both pass review)
+WAVE 2 ─── single agent (industry context needed) ─────────────────┐
+│  Agent C: /analyze-company  (business model, 10yr financials)    │
+│  → followed by adversarial reviewer                              │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓ (passes review)
+WAVE 3 ─── single agent ───────────────────────────────────────────┐
+│  Agent D: /build-assumptions (story→numbers, write .json)        │
+│  → followed by adversarial reviewer + quick engine sanity run    │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓ (passes review)
+WAVE 4 ─── single agent ───────────────────────────────────────────┐
+│  Agent E: /run-valuation    (DCF, MC, breakeven, reverse DCF)    │
+│  → followed by adversarial reviewer                              │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓ (passes review)
+WAVE 5 ─── spawn 2 agents in PARALLEL ─────────────────────────────┐
+│  Agent F: /durability-check (ROIC-WACC, CAP, RONIC, moat)        │
+│  Agent G: /triangulate      (7-lens cross-check, dispute locus)  │
+│  → each followed by its adversarial reviewer                     │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓ (both pass review)
+                              ┌─── CONSISTENCY CHECK ───┐
+                              │ Do durability +         │
+                              │ triangulation agree?    │
+                              └──────────────────────────┘
+                              ↓ (consistent)
+WAVE 6 ─── single agent ───────────────────────────────────────────┐
+│  Agent H: /write-report     (3,500-5,000 word investor prose)    │
+│  → followed by adversarial reviewer                              │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓ (passes review)
+WAVE 7 ─── single agent ───────────────────────────────────────────┐
+│  Agent I: /self-audit       (lint.py + 7-dim self-critique)      │
+│  → FINAL GATE: CRITICAL → route back to root sub-skill           │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓ (PASS)
+WAVE 8 ─── single agent ───────────────────────────────────────────┐
+│  Agent J: /generate-pdf     (typographic PDF with chart embeds)  │
+└──────────────────────────────────────────────────────────────────┘
+                              ↓
+                          DELIVER
+```
+
+### Mechanism 2 — Adversarial Review (Per-Step Gate)
+
+After **EVERY** sub-skill completes, the orchestrator spawns an adversarial
+review agent. This is NOT the same as the final self-audit — it's a per-step
+quality check that catches errors early.
+
+**Review agent design:**
+
+```
+┌─────────────────────────────────────────────┐
+│         ADVERSARIAL REVIEW AGENT             │
+│                                             │
+│  Given:                                     │
+│  - Sub-skill's output                       │
+│  - Sub-skill's self-check checklist         │
+│  - Sub-skill's review criteria              │
+│                                             │
+│  Task:                                      │
+│  1. Find at least ONE thing wrong or weak   │
+│  2. Rate: PASS / REVISE / BLOCK             │
+│  3. For REVISE: specific, actionable fix   │
+│  4. For PASS: state why it survives scrutiny│
+│                                             │
+│  Rules:                                     │
+│  - Default stance: SKEPTICAL (not rubber-  │
+│    stamp — adversarial, not friendly)       │
+│  - Must find at least 1 weakness. If the   │
+│    output is genuinely flawless, the       │
+│    reviewer states: "Best-effort critique  │
+│    found no material issues — PASS."        │
+│  - Max 2 revision rounds. After round 2,   │
+│    unresolved issues are escalated to the  │
+│    orchestrator with a RISK ANNOTATION.     │
+│  - BLOCK verdict only for fatal errors      │
+│    (e.g., wrong archetype, broken math,     │
+│    fabricated numbers).                     │
+└─────────────────────────────────────────────┘
+```
+
+**Review verdicts:**
+
+| Verdict | Meaning | Orchestrator action |
+|---------|---------|-------------------|
+| **PASS** | Output survives scrutiny; minor suggestions only | Proceed to next step |
+| **PASS-WITH-NOTES** | Pass but with caveats recorded | Proceed; notes forwarded to downstream steps |
+| **REVISE** | Material issues found; fix needed | Send specific feedback to sub-skill; re-run sub-skill + re-review (max 2 rounds) |
+| **BLOCK** | Fatal error (wrong archetype, fabricated data, broken logic) | Halt pipeline; escalate to orchestrator with diagnosis |
+
+**Revision loop per step:**
+
+```
+sub-skill → output → adversarial review → REVISE?
+    ↑                                        │
+    └──────── fix + re-submit (round 2) ─────┘
+                                                 ↓
+                                            REVISE again?
+                                                 │
+                                    ┌────────────┴────────────┐
+                                    ↓                         ↓
+                                  PASS                    ESCALATE
+                              (proceed to               (flag to user
+                               next step)              with risk note)
+```
 
 ---
 
-## Mode A — Full Valuation Pipeline (with self-iterating gates)
+## Mode A — Full Pipeline Execution
+
+### Phase 0: Archetype
 
 ```
-STEP 1  → /classify-archetype
-STEP 2  → /analyze-industry       (can run in parallel with step 4)
-STEP 3  → /analyze-company
-STEP 4  → /analyze-theme          (can run in parallel with step 2)
-         ┌─────────────────────────────────────────────┐
-         │ GATE A: Sanity check                        │
-         │ Do industry + company + theme cohere?       │
-         │ If contradictory → resolve before step 5     │
-         └─────────────────────────────────────────────┘
-STEP 5  → /build-assumptions      (consumes steps 2,3,4)
-         ┌─────────────────────────────────────────────┐
-         │ GATE B: Input sanity                        │
-         │ Quick breakeven/reverse-DCF sanity run       │
-         │ If inputs produce absurd values → back to 5  │
-         └─────────────────────────────────────────────┘
-STEP 6  → /run-valuation          (engine execution)
-STEP 7  → /durability-check       (moat + terminal scrutiny)
-STEP 8  → /triangulate            (all 7 lenses)
-         ┌─────────────────────────────────────────────┐
-         │ GATE C: Triangulation gate                  │
-         │ Do the lenses agree/disagree sensibly?       │
-         │ If fatal contradiction → identify source,    │
-         │   route back to step 5 (rebuild assumptions) │
-         │   or step 4 (re-examine TAM/competitive)     │
-         └─────────────────────────────────────────────┘
-STEP 9  → /write-report           (produce draft)
-STEP 10 → /self-audit             (lint + critique)
-         ┌─────────────────────────────────────────────┐
-         │ GATE D: Publish gate (the final barrier)    │
-         │ CRITICAL → route to the failed step:         │
-         │   Voice/register issues → back to step 9     │
-         │   Input/assumption issues → back to step 5   │
-         │   Missing depth elements → back to step 2-4  │
-         │   Engine/calculation issues → back to step 6 │
-         │ HIGH only → disclose + proceed               │
-         │ CLEAN → PUBLISH ✅ → proceed to step 11      │
-         └─────────────────────────────────────────────┘
-STEP 11 → /generate-pdf           (typographic PDF render)
-         → DELIVER final report + PDF
+1. Invoke /classify-archetype
+2. Spawn adversarial reviewer for classify-archetype
+   - Review criteria: archetype classification correctness, engine/playbook match,
+     edge cases considered, traps avoided
+   - If REVISE: fix classification → re-review (max 2 rounds)
+   - If BLOCK: halt — wrong company understanding
+3. When PASS: lock archetype (all downstream steps inherit it)
 ```
 
-### Self-iteration protocol
-
-When a gate fails:
-
-1. **Identify the failing sub-skill** — which step produced the problematic output?
-2. **Write a specific feedback directive** — not "fix the report" but "revenue build implies >100% TAM share in year 7; rebuild with capped share at 85%"
-3. **Re-invoke the failing sub-skill** with the feedback directive
-4. **Re-run all downstream steps** (cascade)
-5. **Track iterations** — if a gate fails 3 times on the same issue, escalate: flag the irreducible uncertainty and proceed with disclosure
-
-### Parallelism
-
-Steps 2 (industry) and 4 (theme) can run in parallel. Steps 7 (durability) and 8
-(triangulate) can run partially in parallel after step 6 completes. The critical
-path is:
+### Phase 1: Research (WAVE 1 — parallel)
 
 ```
-1 → 2,3,4 → 5 → 6 → 7,8 → 9 → 10 → 11 → DELIVER
-       ↑         ↑         ↑
-  parallel    parallel   sequential
+SPAWN 2 AGENTS IN PARALLEL:
+
+Agent A: /analyze-industry
+  → adversarial review: are lifecycle/margin/leader data sourced and spanning 10+ years?
+  → if REVISE: fix gaps → re-review
+
+Agent B: /analyze-theme
+  → adversarial review: is TAM sourced? two revenue paths attempted? Big Market Delusion checked?
+  → if REVISE: fix gaps → re-review
+
+(Both agents run concurrently. Orchestrator waits for both to PASS.)
+```
+
+### Phase 2: Company (WAVE 2)
+
+```
+Agent C: /analyze-company (uses Agent A's industry context)
+  → adversarial review: business model clear? moat decomposed? 10yr trajectory +
+    drawdowns present? SBC dilution stated?
+  → if REVISE: fix gaps → re-review
+```
+
+### Phase 3: Cross-phase sanity (GATE A)
+
+```
+Orchestrator runs a quick consistency check across phases 1+2:
+- Does the industry analysis contradict the theme?
+- Does the company's moat make sense given the industry structure?
+- Does the TAM share trajectory fit the competitive landscape?
+→ If contradiction found: identify which sub-skill is the source, route fix
+```
+
+### Phase 4: Assumptions (WAVE 3)
+
+```
+Agent D: /build-assumptions
+  → adversarial review: accounting adjustments done? revenue bottom-up? each driver
+    has basis + low/base/high? JSON valid? quick engine sanity run passes?
+  → if REVISE: fix → re-review
+```
+
+### Phase 5: Engine (WAVE 4)
+
+```
+Agent E: /run-valuation
+  → adversarial review: all applicable scripts executed? terminal % stated?
+    price percentile reported? MoS band extracted? reverse-DCF plausible?
+  → if REVISE: re-run with fixes → re-review
+```
+
+### Phase 6: Analysis (WAVE 5 — parallel)
+
+```
+SPAWN 2 AGENTS IN PARALLEL:
+
+Agent F: /durability-check
+  → adversarial review: ROIC R&D-adjusted? each moat component has named threat +
+    monitorable indicator? CAP justified? terminal sensitivity shown?
+  → if REVISE: fix → re-review
+
+Agent G: /triangulate
+  → adversarial review: all 7 lenses present? dispute locus specific? variant
+    perception falsifiable? not averaging lenses?
+  → if REVISE: fix → re-review
+
+CONSISTENCY CHECK between durability + triangulation outputs:
+- Does the CAP from durability match the dispute locus from triangulation?
+- If durability says "moat is strong for 15 years" but triangulation says
+  "fight is about terminal margin" → resolve the tension
+```
+
+### Phase 7: Report (WAVE 6)
+
+```
+Agent H: /write-report
+  → adversarial review (most thorough — this is the deliverable):
+    - Voice check: grep for "you"/"你", emoji, banned patterns
+    - Depth check: all 6 Damodaran depth elements present?
+    - Numbers check: every material figure sourced and tiered?
+    - Structure check: sections follow Template A?
+    - Register check: reads like a research report, not an AI answer?
+  → if REVISE: fix → re-review (may need 2 rounds for prose quality)
+```
+
+### Phase 8: Audit (WAVE 7)
+
+```
+Agent I: /self-audit
+  → This IS the adversarial review for the report, but more systematic:
+    Check 1: report_lint.py (mechanical — must pass)
+    Check 2: 7-dimension self-critique (reasoning — CRITICAL must be zero)
+  → CRITICAL finding → route to root sub-skill → re-run from that step
+  → HIGH only → disclose in limitations → PASS
+  → CLEAN → PASS → proceed to PDF
+```
+
+### Phase 9: PDF (WAVE 8)
+
+```
+Agent J: /generate-pdf
+  → adversarial review: all charts embedded? CJK fonts render? rating box prominent?
+    pages numbered? disclaimer present? printable in B&W?
+  → if REVISE: fix rendering → re-review
+```
+
+### Phase 10: Deliver
+
+```
+Final package:
+- TICKER_report.md
+- TICKER_report.pdf
+- TICKER_assumptions.json (for reproducibility)
+- figs/ (charts, PNG + SVG)
 ```
 
 ---
@@ -125,14 +315,18 @@ path is:
 ## Mode B — Critique Pipeline
 
 ```
-/critique-report
-    1. Extract thesis + inputs from the report
-    2. Score seven dimensions (Pass/Weak/Fail)
-    3. Re-run their inputs through the engine
-    4. Write severity-tagged findings
-    5. Verdict + what would change it
-    6. Optionally /generate-pdf the audit memo
-    7. Deliver audit memo
+Agent: /critique-report
+  1. Extract thesis + inputs from the report
+  2. Score seven dimensions (Pass/Weak/Fail)
+  3. Re-run their inputs through the engine
+  4. Write severity-tagged findings
+  5. Verdict + what would change it
+
+  → adversarial review: is each scored dimension backed by quoted evidence?
+    are re-run results present? CRITICAL findings block a "reliable" verdict?
+
+  → Optionally /generate-pdf the audit memo
+  → Deliver
 ```
 
 ---
@@ -140,19 +334,33 @@ path is:
 ## Mode C — Refresh Pipeline
 
 ```
-/refresh-valuation
-    1. Sweep developments since last as-of date
-    2. Compute driver delta (CONFIRMS/STRENGTHENS/BREAKS)
-    3. If nothing broke → short update memo
-    4. If a driver broke → re-run affected engine, new value
-    5. Self-audit (lightweight)
-    6. Optionally /generate-pdf the update memo
-    7. Deliver update memo
+Agent: /refresh-valuation
+  1. Sweep developments since last as-of date
+  2. Compute driver delta (CONFIRMS/STRENGTHENS/BREAKS)
+  3. If nothing broke → short update memo
+  4. If a driver broke → re-run affected engine, new value
+
+  → adversarial review: is every development dated and source-tiered?
+    driver delta explicit for each driver? reverse-DCF re-run at current price?
+
+  → Lightweight self-audit
+  → Optionally /generate-pdf
+  → Deliver
 ```
 
 ---
 
-## Quality principles (applied at every gate)
+## Escalation rules (when revision rounds are exhausted)
+
+After 2 rounds of adversarial review without PASS:
+
+1. **Record the unresolved issue** with a risk annotation
+2. **Publish with disclosure** — the issue must be stated in the report's limitations section
+3. **Flag to user** — "Note: [sub-skill] output has an unresolved weakness: [specific].
+   Published with this caveat. To strengthen, re-run with better input data."
+4. **Never silently pass** — unresolved adversarial feedback is always surfaced
+
+## Quality principles (applied at every adversarial review)
 
 1. **Story → numbers → value.** No spreadsheet without narrative, no narrative without numbers.
 2. **Quantify uncertainty.** Output a distribution, not a point.
@@ -160,7 +368,7 @@ path is:
 4. **Investor-facing register.** Every output is for an anonymous investor — no "you", no chat context, long-form prose.
 5. **Numbers ledger.** Every material figure is sourced and tiered.
 
-## Guardrails (inherited by all sub-skills)
+## Guardrails (inherited by all sub-skills and reviewers)
 - This is analysis, not personalized investment advice.
 - State assumptions with basis and low/base/high ranges.
 - Always report terminal-value %, price-in-distribution percentile, MoS buy-band.

@@ -97,7 +97,38 @@ to $X B vs plausible TAM of $Y B → [PASS / WARN: gap of Z%]
 - The competitive map feeds the CAP/moat durability in `/durability-check`
 - The "Big Market Delusion" check is a required gate output
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **Bottom-up build:** Revenue built by segment (TAM × share), NOT one blended
+  growth rate. Single growth rate on total revenue → REVISE.
+- [ ] **Two revenue paths:** Both top-down (TAM × share) AND bottom-up (units × ASP
+  capped by capacity) attempted. The GAP between them is interpreted. Missing one
+  path → REVISE (note: bottom-up may be infeasible for some companies; state why).
+- [ ] **TAM sourcing:** Every TAM figure cited with source and date. Round-number
+  TAMs with no source → REVISE.
+- [ ] **Competitive specificity:** Named competitors on named battlefields with
+  capability assessment. "There are competitors" → REVISE.
+- [ ] **Big Market Delusion:** Sum of all credible players' implied revenues
+  checked against plausible market total. Missing → REVISE.
+- [ ] **Growth decline:** Growth explicitly declines to ≤ riskfree by terminal year.
+  Perpetual high growth → REVISE.
+
+### Common failure modes
+- One blended growth rate instead of segment build
+- TAM numbers without sources ("the AI market is $500B")
+- Competitive landscape that lists company names without battlefield/capability
+- Big Market Delusion check skipped
+- Growth that never declines (violates law of large numbers)
+
+### Verdict thresholds
+- **PASS:** Segment build, two paths attempted, TAM sourced, competitive map
+  specific, Big Market Delusion clean.
+- **REVISE:** Missing one path, unsourced TAM, generic competition.
+- **BLOCK:** Implied revenue >100% of TAM, fabricated TAM data, or theme completely
+  misidentified.
+
+### Self-check (run before submitting to review)
 - [ ] Revenue is built bottom-up by segment, not one blended growth rate
 - [ ] Two independent revenue paths are attempted (top-down + bottom-up)
 - [ ] TAM sources are cited with dates

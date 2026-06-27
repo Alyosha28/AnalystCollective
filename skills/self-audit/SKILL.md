@@ -114,3 +114,24 @@ would have found first.
   ]
 }
 ```
+
+## Adversarial Review Gate (meta-review)
+
+The self-audit IS the adversarial review for the report. But the orchestrator
+may also spawn a meta-reviewer to verify the self-audit was honest.
+
+### Meta-review criteria (if spawned)
+- [ ] **Lint actually run:** Spot-check: grep for "you"/"你" — if found but lint
+  didn't flag, REVISE lint config.
+- [ ] **Self-audit honesty:** Pick one dimension randomly and verify the quoted
+  evidence supports the score. Inflated self-scores → REVISE.
+- [ ] **CRITICAL not dodged:** Are there issues that SHOULD have been CRITICAL
+  but were scored HIGH/MEDIUM? Check: terminal growth vs riskfree, implied
+  market share vs 100%, double-counted cash flows.
+- [ ] **Feedback routing correct:** Does the feedback point to the correct root
+  sub-skill? Wrong routing → REVISE.
+
+### Verdict thresholds
+- **PASS:** Lint passes, self-audit honest, no dodged CRITICALs.
+- **REVISE:** Dishonest self-scoring or dodged issues.
+- **BLOCK:** Gate bypass attempted (skipped lint, fabricated audit results).

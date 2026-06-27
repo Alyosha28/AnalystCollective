@@ -128,7 +128,38 @@ For other archetypes, use the appropriate template from `templates/`:
 - Template files in `templates/` show the exact JSON structure expected
 - The assumptions narrative is used verbatim in the report's "Story → numbers" section
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **Accounting first:** R&D capitalization done with NUMBERS (not described),
+  leases normalized, one-offs stripped, SBC quantified. Described but not computed → REVISE.
+- [ ] **Revenue bottom-up:** Built by segment (TAM × share). Single growth rate → REVISE.
+- [ ] **Driver basis:** Each of the four drivers has: current value, target value,
+  convergence path, one-line justification, and low/base/high range. Missing any → REVISE.
+- [ ] **Margin justification:** Target margin justified against company history AND
+  peer group. Premium to peers requires moat justification explicitly stated.
+- [ ] **Growth decline:** Growth explicitly declines to ≤ riskfree by terminal year.
+- [ ] **Terminal sanity:** Terminal growth ≤ riskfree rate. Terminal ROC ≤ current
+  ROIC (unless defended). Terminal-value % of total stated.
+- [ ] **JSON validity:** Output JSON is valid and matches the archetype's template
+  structure. Reviewer: run `python -c "import json; json.load(open('file'))"`.
+- [ ] **Engine sanity:** Quick run of `dcf_valuation.py` (or archetype equivalent)
+  produces a positive, non-absurd value. Negative or $0 value → REVISE.
+
+### Common failure modes
+- Accounting adjustments described but not computed (no adjusted margin, no adjusted ROIC)
+- Margin target asserted ("40%") without peer-group or historical justification
+- Growth path that never declines to riskfree
+- SBC "not material" without quantification
+- Terminal growth > riskfree rate (fatal but surprisingly common)
+- JSON that doesn't match the engine's expected schema
+
+### Verdict thresholds
+- **PASS:** Accounting computed, drivers justified, JSON valid, engine sanity clean.
+- **REVISE:** Missing adjustments, unjustified drivers, JSON errors, engine sanity fails.
+- **BLOCK:** Terminal growth > riskfree, revenue >100% TAM share, or fabricated inputs.
+
+### Self-check (run before submitting to review)
 - [ ] Accounting adjustments done BEFORE forecasting (R&D, leases, one-offs, SBC)
 - [ ] Revenue built bottom-up by segment, growth declines to ≤ riskfree
 - [ ] Margin target justified vs history and peers
@@ -136,5 +167,4 @@ For other archetypes, use the appropriate template from `templates/`:
 - [ ] Cost of capital reflects sector, geography, cyclicality
 - [ ] Every non-trivial input has a one-line basis and a low/base/high range
 - [ ] JSON is valid and matches the archetype's template structure
-- [ ] Quick sanity: run `python scripts/dcf_valuation.py TICKER_assumptions.json` —
-    does it produce a positive, non-absurd value?
+- [ ] Quick sanity: `python scripts/dcf_valuation.py TICKER_assumptions.json` produces positive value

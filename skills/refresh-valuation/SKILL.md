@@ -139,7 +139,35 @@ Run `report_lint.py` on the memo. Quick check against the report voice:
 - Template C in `references/output-templates.md`
 - If the refresh reveals a structural story change → recommend a full Mode A rebuild
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **Every development dated:** Each new data point has a date and source tier.
+  Undated development → REVISE.
+- [ ] **Driver delta explicit:** All four drivers tagged CONFIRMS/STRENGTHENS/
+  WEAKENS/BREAKS. "Looks fine" without delta → REVISE.
+- [ ] **BREAKS triggers re-run:** If any driver is BREAKS, the engine was re-run
+  and new value stated. Break without re-run → REVISE.
+- [ ] **Reverse DCF re-test:** Reverse DCF run at CURRENT price (not old price).
+  Skipped → REVISE.
+- [ ] **Catalyst calendar updated:** Dated upcoming events with driver hit and
+  expected direction. Stale calendar → REVISE.
+- [ ] **Stamps refreshed:** valid-as-of updated to current date, revisit-by set
+  to next catalyst. Missing → REVISE.
+
+### Common failure modes
+- Developments listed without dates
+- Driver delta not explicit ("things look good")
+- Break declared but engine not re-run
+- Reverse DCF not re-run at current price
+- Catalyst calendar copied from old report without updating
+
+### Verdict thresholds
+- **PASS:** Dated sweep, explicit delta, reverse re-test, updated calendar.
+- **REVISE:** Missing dates, skipped reverse, stale calendar.
+- **BLOCK:** Break ignored, wrong price used, fabricated developments.
+
+### Self-check (run before submitting to review)
 - [ ] Every development is dated and source-tiered
 - [ ] Driver delta is explicit — CONFIRMS/STRENGTHENS/WEAKENS/BREAKS for each driver
 - [ ] Reverse DCF re-run at current price

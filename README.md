@@ -28,69 +28,71 @@ Python engine** so every number is auditable and every valuation is reproducible
 | **Tests** (`tests/`) | Reproducibility guard, output schema validation, report linter, archetype coverage |
 | **Style Guide** | Investor-facing prose discipline — no second-person, no emoji, long-form argument, MoS buy-band, numbers ledger |
 
-## Modular Architecture — Self-Iterating Pipeline
+## Modular Architecture — Agent Team + Adversarial Review
 
-The skill is decomposed into **14 sub-skills** orchestrated through a self-iterating
-pipeline with four quality gates. Each sub-skill is independently testable and
-optimizable — improve one without breaking the rest.
+The skill is decomposed into **14 sub-skills** orchestrated through a pipeline with
+two powerful mechanisms:
 
-### The pipeline (Mode A — Full Valuation)
+### Mechanism 1 — Default Agent Team (Parallelism)
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│              /equity-research-analyst (orchestrator)         │
-│                                                             │
-│  STEP 1  /classify-archetype    → archetype, engine, playbook│
-│  STEP 2  /analyze-industry      → industry lifecycle, leaders│
-│  STEP 3  /analyze-company       → business model, 10yr fin. │
-│  STEP 4  /analyze-theme         → TAM × share, competitive   │
-│              ┌─── GATE A: Sanity check ───┐                  │
-│  STEP 5  /build-assumptions     → story→numbers, .json file  │
-│              ┌─── GATE B: Input sanity ───┐                  │
-│  STEP 6  /run-valuation          → DCF, MC, breakeven, rev.  │
-│  STEP 7  /durability-check       → ROIC-WACC, CAP, RONIC     │
-│  STEP 8  /triangulate            → 7-lens cross-check        │
-│              ┌─── GATE C: Triangulation ──┐                  │
-│  STEP 9  /write-report           → investor-facing prose      │
-│  STEP 10 /self-audit             → lint + adversarial review  │
-│              ┌─── GATE D: Publish gate ───┐                  │
-│              │ CRITICAL → feedback route  │                  │
-│              │ to failing sub-skill       │                  │
-│              └────────────────────────────┘                  │
-│  STEP 11 /generate-pdf           → typographic PDF deliverable│
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Self-iteration mechanism
-
-When a quality gate fails, the orchestrator routes targeted feedback to the
-specific sub-skill that produced the problematic output, then re-runs downstream
-steps. This creates a **closed optimization loop**:
+Where sub-skills are independent, the orchestrator **automatically spawns parallel
+agents** — no manual instruction needed. This cuts wall-clock time significantly:
 
 ```
-gate fails → identify root sub-skill → targeted fix → re-run cascade → re-gate
+WAVE 1 (parallel)  → /analyze-industry ∥ /analyze-theme
+WAVE 2             → /analyze-company
+WAVE 3             → /build-assumptions
+WAVE 4             → /run-valuation
+WAVE 5 (parallel)  → /durability-check ∥ /triangulate
+WAVE 6             → /write-report
+WAVE 7             → /self-audit
+WAVE 8             → /generate-pdf
 ```
 
-Each sub-skill can be invoked independently for debugging and optimization:
+### Mechanism 2 — Adversarial Review at Every Step
+
+After **EVERY** sub-skill completes, an adversarial review agent critiques the
+output before the pipeline can proceed. The reviewer's stance is **skeptical,
+not friendly** — it must find at least one weakness or prove the output is
+genuinely flawless. Each sub-skill gets **1–2 revision rounds**:
+
+```
+sub-skill → output → adversarial review → REVISE?
+    ↑                                        │
+    └── fix + re-submit (round 2) ───────────┘
+                                                 ↓
+                                            REVISE again?
+                                                 │
+                                    ┌────────────┴────────────┐
+                                    ↓                         ↓
+                                  PASS                    ESCALATE
+                              (next step)           (flag with risk note)
+```
+
+Each sub-skill has a specific review criteria section in its SKILL.md —
+the reviewer checks against a concrete checklist, not vague impressions.
 
 ### All sub-skills
 
-| Sub-skill | Role | Mode |
-|-----------|------|------|
-| `/classify-archetype` | Classify company → pick engine + playbook | A |
-| `/analyze-industry` | Industry lifecycle, profit cycles, leader rotation | A |
-| `/analyze-company` | Business model, moat, 10yr trajectory, drawdowns | A |
-| `/analyze-theme` | Thematic driver, TAM × share, competitive map | A |
-| `/build-assumptions` | Story → numbers, accounting adj, write .json | A |
-| `/run-valuation` | Execute Python engine suite | A |
-| `/durability-check` | ROIC-WACC, CAP, RONIC fade, moat decomposition | A |
-| `/triangulate` | 7-lens cross-check, dispute locus | A |
-| `/write-report` | Produce investor-facing long-form prose | A |
-| `/self-audit` | Lint + adversarial self-critique → gate | A/C |
-| `/generate-pdf` | Render report to typographic PDF | A/B/C |
-| `/critique-report` | Audit third-party research (Mode B) | B |
-| `/refresh-valuation` | Currency sweep, driver delta, update memo (Mode C) | C |
-| `/fetch-data` | Fetch financials, build skeleton (shared) | All |
+| Sub-skill | Role | Key review check |
+|-----------|------|-----------------|
+| `/classify-archetype` | Pick engine + playbook | Financials trap avoided? Edge cases considered? |
+| `/analyze-industry` | Lifecycle, cycles, leaders | 10+ yr data? Leader rotation table real? |
+| `/analyze-company` | Model, moat, 10yr, drawdowns | Moat decomposed? Drawdowns documented? SBC quantified? |
+| `/analyze-theme` | TAM × share, competition | Two revenue paths? TAM sourced? Big Market Delusion? |
+| `/build-assumptions` | Story→numbers, .json | Accounting computed? Drivers justified? Engine sanity? |
+| `/run-valuation` | DCF, MC, breakeven, reverse | All scripts run? Terminal % stated? MoS band? |
+| `/durability-check` | ROIC-WACC, CAP, RONIC | ROIC adjusted? Each moat has threat? CAP justified? |
+| `/triangulate` | 7-lens cross-check | No averaging? Dispute locus specific? Variant falsifiable? |
+| `/write-report` | Investor-facing prose | No "you"? All 6 depth elements? Numbers ledger? |
+| `/self-audit` | Lint + self-critique | Lint passes? No dodged CRITICALs? Honest scoring? |
+| `/generate-pdf` | Typographic PDF | Charts embedded? CJK fonts render? Rating box prominent? |
+| `/critique-report` | Mode B: audit others | Evidence-backed? Re-run present? Verdict matches? |
+| `/refresh-valuation` | Mode C: keep current | Dated sweep? Driver delta explicit? Reverse re-test? |
+| `/fetch-data` | Shared: data skeleton | Sources annotated? Tiers correct? Warnings present? |
+
+Each sub-skill is independently invocable and optimizable — change one review
+criteria, improve one prompt, and the pipeline benefits without touching the rest.
 
 ## Philosophy
 

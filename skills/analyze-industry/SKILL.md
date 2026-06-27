@@ -91,7 +91,35 @@ if needed to pull industry data.
 - This output feeds `/build-assumptions` (industry-average margins, cost of capital)
 - Keep it reusable — the same industry analysis can serve multiple company valuations
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **Data depth:** Revenue/margin data spans 10+ years, not just 2-3. Reviewer:
+  count the years — if <7 data points, REVISE.
+- [ ] **Leader rotation table:** Populated with real companies and real shifts.
+  Empty or generic table → REVISE.
+- [ ] **Sourcing:** Every quantitative claim has a source or is marked as estimate.
+  Unsourced round numbers → REVISE.
+- [ ] **Lifecycle evidence:** The lifecycle stage is argued FROM data, not asserted
+  without evidence. "Mature industry" with no data → REVISE.
+- [ ] **Multiples history:** Industry multiples shown historically (10+ year range),
+  not just "current P/E is X." Missing historical context → REVISE.
+- [ ] **Consistency with archetype:** Industry analysis must be consistent with
+  the locked archetype. Cyclical archetype without margin cycle data → REVISE.
+
+### Common failure modes
+- Industry analysis that reads like a Wikipedia summary (no quantitative depth)
+- Leader rotation table with placeholder company names
+- "Industry is mature/growing" asserted without revenue curve data
+- Missing valuation context (no historical multiples)
+
+### Verdict thresholds
+- **PASS:** All 6 criteria met; data is sourced and spans 10+ years.
+- **REVISE:** Missing depth on 1-2 criteria; specific gaps identified.
+- **BLOCK:** No quantitative data, fabricated numbers, or completely generic.
+  (Rare — typically a REVISE, not a BLOCK.)
+
+### Self-check (run before submitting to review)
 - [ ] Revenue/margin data spans 10+ years, not just 2-3
 - [ ] Leader rotation table is populated with real companies and real shifts
 - [ ] Industry multiples are shown historically, not just "current"

@@ -108,7 +108,38 @@ and for how long?*
 - Company with ROIC < WACC: growth destroys value; the bull case must be about
   margin/ROIC improvement, not growth
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **ROIC is R&D-adjusted:** Not reported GAAP. If GAAP ROIC used → REVISE.
+- [ ] **Value creation check explicit:** ROIC vs WACC spread stated; if ROIC < WACC,
+  flagged prominently that growth destroys value.
+- [ ] **Each moat component has triad:** Named threat + monitorable indicator +
+  strength score. Component without threat → REVISE.
+- [ ] **CAP justified:** CAP number defended by moat composition AND industry
+  leader-rotation cadence. CAP asserted without evidence → REVISE.
+- [ ] **RONIC fade:** Path from current ROIC → terminal ROC with fade speed tied to
+  CAP. Missing fade path → REVISE.
+- [ ] **Terminal sensitivity:** Value change for CAP ±5 years and terminal ROC ±2pp
+  stated. Missing sensitivity → REVISE.
+- [ ] **Consistency with archetype:** Financials → underwriting discipline + regulatory
+  moat. Cyclicals → low-cost position. Not generic moat language.
+
+### Common failure modes
+- ROIC computed on GAAP basis (not R&D-adjusted)
+- Moat components listed without threats ("network effects" — what erodes them?)
+- CAP is a round number with no justification ("15 years" — why?)
+- Terminal value >80% of total not flagged
+- Terminal ROC >20% without extraordinary evidence
+
+### Verdict thresholds
+- **PASS:** R&D-adjusted ROIC, moat decomposed with threats, CAP justified,
+  terminal sensitivity shown.
+- **REVISE:** GAAP ROIC, missing threats, asserted CAP, missing sensitivity.
+- **BLOCK:** Terminal growth > riskfree, terminal ROC > current ROIC without
+  defense, or moat assessment contradicts industry leader-rotation data.
+
+### Self-check (run before submitting to review)
 - [ ] ROIC is R&D-adjusted (not reported GAAP)
 - [ ] Each moat component has a named threat and a monitorable indicator
 - [ ] CAP is justified, not asserted

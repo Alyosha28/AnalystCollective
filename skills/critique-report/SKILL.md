@@ -91,7 +91,36 @@ An audit memo (~1,500–2,500 words) in the same investor-facing register:
 - Voice rules from `references/report-voice.md` apply to the audit memo too
 - The same rubric is used by `/self-audit` for self-critique
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **Evidence-backed scores:** Every scored dimension has at least one quoted
+  passage from the report as evidence. Unsupported score → REVISE.
+- [ ] **Re-run present:** Both replication (their inputs → engine) AND reverse-solve
+  (what their inputs require to be true) are present. Missing → REVISE.
+- [ ] **Severity discipline:** CRITICAL reserved for terminal growth > riskfree,
+  >100% share, double-counting. Not diluted to "I disagree." Inflated severity → REVISE.
+- [ ] **Verdict follows rubric:** Any CRITICAL → "Not reliable." HIGH only →
+  "Usable with adjustments." MEDIUM/LOW only → "Sound." Wrong verdict rule → REVISE.
+- [ ] **Steel-man present:** The critique first presents the report's thesis fairly
+  before attacking it. Straw-man → REVISE.
+- [ ] **Prose register:** Audit memo written in investor-facing prose, not a
+  checklist. Bullet-only memo → REVISE.
+
+### Common failure modes
+- Scores without quoted evidence ("the report lacks rigor")
+- Re-run skipped (engine not executed)
+- CRITICAL used for disagreements rather than fatal flaws
+- Verdict that doesn't match the findings table
+- Audit memo that's just a scorecard without prose
+
+### Verdict thresholds
+- **PASS:** Evidence-backed, re-run present, verdict matches findings, steel-man
+  included, prose-compliant.
+- **REVISE:** Missing evidence, skipped re-run, wrong verdict rule.
+- **BLOCK:** Audit of wrong report, fabricated quotes, or completely unsubstantiated.
+
+### Self-check (run before submitting to review)
 - [ ] Every scored dimension has quoted evidence from the report
 - [ ] Re-run results are present (replicate + reverse-solve)
 - [ ] CRITICAL findings block a "reliable" verdict

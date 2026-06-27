@@ -88,7 +88,37 @@ Ask in order — the first "yes" is the answer:
 - **Commodity-like tech** (DRAM): if pricing power is cyclical → consider Cyclical.
 - **Platform companies** (Uber, Airbnb): Default — they earn take-rates, not spreads.
 
-## Self-check
+## Adversarial Review Gate
+
+After this sub-skill produces output, an adversarial review agent critiques it
+(1–2 rounds max) against these criteria:
+
+### Review criteria
+- [ ] **Correctness:** Does the archetype match the defining trait? Test: re-apply
+  the classification algorithm — would a second analyst reach the same conclusion?
+- [ ] **Financials trap check:** If NOT financials, was the spread-vs-fee test
+  explicitly applied and passed? (Most common error: classifying a fee-earner as
+  financials, or vice versa.)
+- [ ] **Decisiveness:** Is the classification a single archetype, not "maybe X or Y"?
+  Ambiguous classifications are rejected.
+- [ ] **Downstream mapping:** Are engine + playbook + drivers explicitly stated?
+  A missing engine assignment is a REVISE.
+- [ ] **Edge cases:** Were commodity-tech, platform, diversified-financial edge
+  cases considered?
+
+### Common failure modes (reviewer hunts for these)
+- Card network / exchange / asset manager misclassified as Financials (→ BLOCK)
+- Commodity-chemical company NOT classified as Cyclical (→ REVISE)
+- Holding-co with >30% of value in stakes NOT classified as Holding-co (→ REVISE)
+- Pre-revenue biotech NOT classified as Young (→ REVISE with failure branch)
+
+### Verdict thresholds
+- **PASS:** Archetype is correct, engine mapped, traps documented. Minor notes OK.
+- **REVISE:** Ambiguous classification, missing downstream mapping, or edge case
+  not considered. Give specific fix directive.
+- **BLOCK:** Wrong archetype (fatal — all downstream steps depend on this).
+
+### Self-check (run before submitting to review)
 - [ ] The "trap" test for financials is explicitly applied
 - [ ] The archetype is decisive, not "maybe X or Y"
 - [ ] Downstream consequences (engine + drivers) are stated

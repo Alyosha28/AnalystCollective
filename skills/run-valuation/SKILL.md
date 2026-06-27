@@ -147,7 +147,39 @@ A **valuation results package** containing:
 - Charts are embedded in the final report and PDF
 - JSON outputs are preserved for reproducibility
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **All scripts executed:** Every applicable script (DCF, MC, breakeven, reverse,
+  comps) ran without errors. Missing a script → REVISE.
+- [ ] **MC trials sufficient:** At least 10,000 trials for report-quality output.
+  <5,000 → REVISE.
+- [ ] **Terminal transparency:** % of value in terminal explicitly stated in the
+  results summary. Missing → REVISE.
+- [ ] **Price percentile:** Where the current price sits in the MC distribution is
+  stated (e.g., "94th percentile"). Missing → REVISE.
+- [ ] **MoS buy-band:** Margin-of-safety band (accumulate-below / fair / rich-above)
+  extracted from MC output and stated. Missing → REVISE.
+- [ ] **Reverse DCF comparison:** Price-implied driver values compared to base case
+  with gap in % and absolute terms. Missing comparison → REVISE.
+- [ ] **Breakeven table:** 2-variable table (Y10 rev × margin) with cells that reach
+  price marked. Missing → REVISE.
+- [ ] **JSON outputs saved:** For chart generation and reproducibility.
+
+### Common failure modes
+- Monte Carlo run with too few trials (noise-dominated distribution)
+- Terminal % not reported (hides the big bet)
+- MoS band missing (most common — extract from MC output)
+- Reverse DCF results not compared to base case (just numbers, no interpretation)
+- Charts not generated (no PNG/SVG output)
+
+### Verdict thresholds
+- **PASS:** All scripts executed, all summary stats present, charts generated.
+- **REVISE:** Missing script, insufficient trials, missing stats.
+- **BLOCK:** Engine errors, negative values with no explanation, fundamentally
+  broken valuation.
+
+### Self-check (run before submitting to review)
 - [ ] All applicable scripts executed without errors
 - [ ] Terminal value % is explicitly stated
 - [ ] Price percentile in distribution is reported

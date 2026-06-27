@@ -112,7 +112,37 @@ first exposed.
   is not a variant perception. "I think AI chip TAM will be $200B not $300B because
   hyperscaler capex is already at 50% of operating cash flow" is.
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **All 7 lenses present:** Each lens populated or explicitly marked N/A with
+  reason. Missing lens → REVISE.
+- [ ] **No averaging:** Lenses are compared as a pattern, not averaged into one
+  number. Averaging → REVISE.
+- [ ] **Dispute locus is specific:** Names the dimension (near-term vs terminal) AND
+  the specific driver (revenue/margin/CAP). Vague "the market is too optimistic" → REVISE.
+- [ ] **Variant perception is falsifiable:** States WHAT you must out-predict and WHY
+  you think you can. Non-falsifiable ("growth will be higher") → REVISE.
+- [ ] **Diligence concentration actionable:** Names the specific question with
+  highest ROI for further research. Missing → REVISE.
+- [ ] **Consistency with durability check:** CAP from durability matches the dispute
+  locus from triangulation. Contradiction → REVISE (resolve with durability agent).
+
+### Common failure modes
+- Lenses averaged into one number (most common error)
+- Dispute locus too vague ("the valuation debate")
+- Variant perception is just the rating in different words
+- Missing lens with no reason given
+- Diligence concentration is generic ("watch earnings")
+
+### Verdict thresholds
+- **PASS:** 7 lenses present, dispute locus specific, variant perception falsifiable,
+  no averaging, consistent with durability check.
+- **REVISE:** Averaging, vague dispute locus, missing lenses.
+- **BLOCK:** Triangulation contradicts core valuation results without explanation,
+  or dispute locus is fundamentally misidentified.
+
+### Self-check (run before submitting to review)
 - [ ] All seven lenses are populated (or marked N/A with reason)
 - [ ] Dispute locus is specific — names the dimension (near-term vs terminal) and
       the driver (revenue/margin/CAP)

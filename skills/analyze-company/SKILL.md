@@ -90,7 +90,35 @@ Include the drawdowns as named episodes with root cause + recovery narrative.]
 - Feeds `/durability-check`: moat components → CAP estimate
 - The drawdowns directly inform the bear case in `/write-report`
 
-## Self-check
+## Adversarial Review Gate
+
+### Review criteria
+- [ ] **Segment decomposition:** Revenue decomposed by segment with approximate %s.
+  Single top-line number without segments → REVISE.
+- [ ] **Moat specificity:** Moat decomposed into named, testable components with
+  strength scores. "Strong brand" without mechanism → REVISE.
+- [ ] **Drawdowns present:** At least one major historical drawdown (>50% decline)
+  documented with business root cause and recovery narrative. Missing → REVISE.
+- [ ] **Risk specificity:** Structural risks are company-specific (e.g., "fabless
+  → TSMC dependence"), not generic ("competition risk"). Generic risks → REVISE.
+- [ ] **SBC quantification:** SBC dilution rate explicitly stated over 5+ years.
+  "SBC is a cost" without the number → REVISE.
+- [ ] **Data sourcing:** Financial data is sourced with dates. Reviewer: spot-check
+  one number against known filings.
+
+### Common failure modes
+- Moat described as "strong competitive position" without decomposition
+- Drawdowns missing entirely (most common — fix by searching historical price)
+- Risks that apply to any company ("macro risk," "competition")
+- SBC mentioned qualitatively but not quantified
+
+### Verdict thresholds
+- **PASS:** All criteria met; moat decomposed; drawdowns documented; SBC quantified.
+- **REVISE:** 1-2 missing elements with specific gaps. Most common: add drawdowns.
+- **BLOCK:** Fabricated financials, completely wrong business model, or company
+  confused with a different entity.
+
+### Self-check (run before submitting to review)
 - [ ] Revenue is decomposed by segment, not just a single top-line number
 - [ ] The moat is decomposed into named, testable components (not "strong brand")
 - [ ] 10-year financial trajectory includes at least one major drawdown
