@@ -1,3 +1,5 @@
+**English** | [简体中文](./README_CN.md)
+
 <p align="center">
   <h1 align="center">AnalystCollective</h1>
   <p align="center"><em>Story → Numbers → Value &nbsp;·&nbsp; A Damodaran-method fundamental equity valuation engine</em></p>

@@ -1,3 +1,5 @@
+[English](./README.md) | **简体中文**
+
 <p align="center">
   <h1 align="center">AnalystCollective</h1>
   <p align="center"><em>叙事 → 数字 → 价值 &nbsp;·&nbsp; 用 Damodaran 的方法论，做可复现的基本面估值</em></p>
@@ -10,14 +12,6 @@
 
 它把 Aswath Damodaran 的六层估值框架变成了可运行的 Python 代码，用 **14 个独立的 AI 子 Agent**
 组成一条自迭代估值产线，每一步都经对抗性审查。每个数字都可审计，每份报告都可复现。
-
----
-
-<div align="center">
-
-[English README](README.md) · [快速开始](#快速开始) · [引擎一览](#引擎一览) · [哲学](#哲学)
-
-</div>
 
 ---
 
