@@ -1,19 +1,19 @@
 <p align="center">
-  <h1 align="center">Story → Numbers → Value</h1>
-  <p align="center"><em>A Damodaran-method fundamental equity valuation engine</em></p>
+  <h1 align="center">OpenAnalyst</h1>
+  <p align="center"><em>Story → Numbers → Value &nbsp;·&nbsp; A Damodaran-method fundamental equity valuation engine</em></p>
 </p>
 
 ---
 
-**Story → Numbers → Value** is a disciplined, reproducible fundamental valuation
-toolkit that values companies the way a thoughtful investor does: a **narrative,
-disciplined by numbers, expressed as a value, and turned into a decision.** It
-does not chase price targets or give trading tips — it estimates *intrinsic
-value*, quantifies the *uncertainty*, and compares value to price.
+**OpenAnalyst** is not a black-box stock recommender. It is a **transparent,
+AI agent-driven valuation engine** — you see not just what a company is "worth",
+but how the story unfolds under every assumption, and what the gap between price
+and value actually means.
 
-Distilled from Aswath Damodaran's public valuations and the complementary lenses
-used by sell-side, buy-side, and independent analysts, it ships a **runnable
-Python engine** so every number is auditable and every valuation is reproducible.
+Built on Aswath Damodaran's six-layer valuation framework, it turns methodology
+into runnable Python code, orchestrated through **14 independent AI sub-agents**
+in a self-iterating pipeline with adversarial review at every step. Every number
+is auditable. Every report is reproducible.
 
 ---
 
