@@ -41,10 +41,22 @@ every boundary, not just at the final gate.
 ├── /write-report                 ← produce investor-facing long-form prose
 ├── /self-audit                   ← lint + adversarial self-critique → gate
 ├── /generate-pdf                 ← render finished report to PDF (typographic, chart embeds)
+├── /research                     ← shared: single-point web research, fact-checking
+├── /fetch-data                   ← shared: fetch financials, build skeleton
 ├── /critique-report              ← Mode B: audit third-party research
-├── /refresh-valuation            ← Mode C: currency sweep, driver delta, update memo
-└── /fetch-data                   ← shared: fetch financials, build skeleton
+└── /refresh-valuation            ← Mode C: currency sweep, driver delta, update memo
 ```
+## Shared agents
+
+Analysis sub-skills invoke these instead of duplicating logic:
+
+| Agent | Purpose | Called by |
+|-------|---------|-----------|
+| /research | Web research, fact-checking, source annotation | industry, company, theme, assumptions, refresh, critique |
+| /fetch-data | Financial data skeleton from filings/APIs | assumptions, standalone |
+
+**Rule:** Send a research brief to /research -- do not run WebSearch in analysis skills.
+
 
 ## Shared resources
 - `scripts/` — Python valuation engine (10 programs)
